@@ -1,0 +1,56 @@
+version: '3.3'
+
+services:
+  db-node-1:
+    build:
+      context: mysql
+      dockerfile: Dockerfile
+    container_name: db-node-1
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: 'stud'
+      MYSQL_USER: 'stud'
+      MYSQL_PASSWORD: 'stud'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - 3360:3306
+
+  db-node-2:
+    build:
+      context: mysql
+      dockerfile: Dockerfile
+    container_name: db-node-2
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: 'stud'
+      MYSQL_USER: 'stud'
+      MYSQL_PASSWORD: 'stud'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - 3361:3306
+      
+  proxysql:
+    build:
+      context: proxysql
+      dockerfile: Dockerfile
+    container_name: proxysql
+    depends_on:
+      - "db-node-1"
+      - "db-node-2"
+    ports:
+      # Mysql Client Port
+      - "6033:6033"
+  
+  ignite-node-1:
+    image: apacheignite/ignite
+    container_name: ignite-node-1
+    ports:
+      - "10800:10800"
+
+  ignite-node-2:
+    image: apacheignite/ignite
+    container_name: ignite-node-2
+    ports:
+      - "10900:10800"
